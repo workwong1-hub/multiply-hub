@@ -20,7 +20,7 @@
   }
   function routePosUser(user) {
     if (user.role !== "pos" || isPosUrl()) return false;
-    try { window.top.location.replace("/pos"); return true; } catch { return false; }
+    try { window.top.location.href = "/pos"; return true; } catch { return false; }
   }
 
   async function loadSharedData() {
@@ -71,6 +71,6 @@
     closeDonation(); event.target.reset(); await loadSharedData();
   };
   function showConnected() { if (document.getElementById("supabaseConnected")) return; const note = document.createElement("div"); note.id = "supabaseConnected"; note.textContent = "Supabase 已连接"; note.style.cssText = "position:fixed;right:16px;bottom:16px;z-index:9999;background:#e4f8ef;color:#167a55;border:1px solid #bce8d7;border-radius:999px;padding:8px 12px;font:12px Arial;box-shadow:0 5px 16px #1b6d4922"; document.body.appendChild(note); }
-  db.auth.getSession().then(async ({ data }) => { if (!data.session) { sessionStorage.removeItem("fmsRole"); sessionStorage.removeItem("fmsUser"); document.getElementById("loginScreen").classList.remove("hidden"); return; } const user = await profile(); if (user) { if (routePosUser(user)) return; document.getElementById("loginScreen").classList.add("hidden"); applyRole(user.role); await loadSharedData(); showConnected(); } });
+  db.auth.getSession().then(async ({ data }) => { if (!data.session) { sessionStorage.removeItem("fmsRole"); sessionStorage.removeItem("fmsUser"); document.getElementById("loginScreen").classList.remove("hidden"); return; } const user = await profile(); if (user) { document.getElementById("loginScreen").classList.add("hidden"); applyRole(user.role); await loadSharedData(); showConnected(); } });
   db.channel("multiply-hub-html").on("postgres_changes", { event: "*", schema: "public", table: "products" }, loadSharedData).on("postgres_changes", { event: "*", schema: "public", table: "donations" }, loadSharedData).on("postgres_changes", { event: "*", schema: "public", table: "pos_orders" }, loadSharedData).on("postgres_changes", { event: "*", schema: "public", table: "campaigns" }, loadSharedData).subscribe();
 })();
