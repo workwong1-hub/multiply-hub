@@ -2,7 +2,10 @@
 (function () {
   const config = window.MULTIPLY_HUB_SUPABASE || {};
   if (!config.url || !config.publishableKey || !window.supabase) return;
-  const db = window.supabase.createClient(config.url, config.publishableKey);
+  // Do not retain a session in the browser: every new visit must authenticate again.
+  const db = window.supabase.createClient(config.url, config.publishableKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+  });
   const dateOnly = (value) => new Date(value).toISOString().slice(0, 10);
   const emailFor = (value) => value.includes("@") ? value.trim().toLowerCase() : `${value.trim().toLowerCase()}@multiplyhub.local`;
 
