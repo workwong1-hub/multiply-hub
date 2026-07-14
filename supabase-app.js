@@ -2,9 +2,9 @@
 (function () {
   const config = window.MULTIPLY_HUB_SUPABASE || {};
   if (!config.url || !config.publishableKey || !window.supabase) return;
-  // Do not retain a session in the browser: every new visit must authenticate again.
+  // Keep a login only for this browser tab. Closing the tab requires a fresh login.
   const db = window.supabase.createClient(config.url, config.publishableKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+    auth: { storage: window.sessionStorage, persistSession: true, detectSessionInUrl: false }
   });
   const dateOnly = (value) => new Date(value).toISOString().slice(0, 10);
   const emailFor = (value) => value.includes("@") ? value.trim().toLowerCase() : `${value.trim().toLowerCase()}@multiplyhub.local`;
@@ -14,6 +14,13 @@
     if (!auth.user) return null;
     const { data } = await db.from("profiles").select("username,role").eq("id", auth.user.id).single();
     return data;
+  }
+  function isPosUrl() {
+    try { return window.top.location.pathname.replace(/\/$/, "") === "/pos"; } catch { return false; }
+  }
+  function routePosUser(user) {
+    if (user.role !== "pos" || isPosUrl()) return false;
+    try { window.top.location.replace("/pos"); return true; } catch { return false; }
   }
 
   async function loadSharedData() {
@@ -45,6 +52,7 @@
     if (error) { document.getElementById("loginError").textContent = "用户名或密码不正确。"; return; }
     const user = await profile();
     if (!user) { document.getElementById("loginError").textContent = "账户没有权限设定。"; await db.auth.signOut(); return; }
+    if (routePosUser(user)) return;
     document.getElementById("loginScreen").classList.add("hidden"); applyRole(user.role); await loadSharedData(); showConnected();
   };
   window.logout = async function () { await db.auth.signOut(); document.getElementById("loginScreen").classList.remove("hidden"); };
@@ -63,6 +71,6 @@
     closeDonation(); event.target.reset(); await loadSharedData();
   };
   function showConnected() { if (document.getElementById("supabaseConnected")) return; const note = document.createElement("div"); note.id = "supabaseConnected"; note.textContent = "Supabase 已连接"; note.style.cssText = "position:fixed;right:16px;bottom:16px;z-index:9999;background:#e4f8ef;color:#167a55;border:1px solid #bce8d7;border-radius:999px;padding:8px 12px;font:12px Arial;box-shadow:0 5px 16px #1b6d4922"; document.body.appendChild(note); }
-  db.auth.getSession().then(async ({ data }) => { if (!data.session) { sessionStorage.removeItem("fmsRole"); sessionStorage.removeItem("fmsUser"); document.getElementById("loginScreen").classList.remove("hidden"); return; } const user = await profile(); if (user) { document.getElementById("loginScreen").classList.add("hidden"); applyRole(user.role); await loadSharedData(); showConnected(); } });
+  db.auth.getSession().then(async ({ data }) => { if (!data.session) { sessionStorage.removeItem("fmsRole"); sessionStorage.removeItem("fmsUser"); document.getElementById("loginScreen").classList.remove("hidden"); return; } const user = await profile(); if (user) { if (routePosUser(user)) return; document.getElementById("loginScreen").classList.add("hidden"); applyRole(user.role); await loadSharedData(); showConnected(); } });
   db.channel("multiply-hub-html").on("postgres_changes", { event: "*", schema: "public", table: "products" }, loadSharedData).on("postgres_changes", { event: "*", schema: "public", table: "donations" }, loadSharedData).on("postgres_changes", { event: "*", schema: "public", table: "pos_orders" }, loadSharedData).on("postgres_changes", { event: "*", schema: "public", table: "campaigns" }, loadSharedData).subscribe();
 })();
