@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Multiply Hub</title>
 <style>html,body,iframe{width:100%;height:100%;margin:0;border:0;display:block;background:#f7f6ff}</style></head>
-<body><iframe id="app" title="Multiply Hub" src="index.html"></iframe>
+<body><iframe id="app" title="Multiply Hub" src="app.html"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{const doc=frame.contentDocument;const add=src=>new Promise(resolve=>{const s=doc.createElement('script');s.src=src;s.onload=resolve;doc.body.appendChild(s)});(async()=>{await add('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');await add('supabase-config.js');await add('supabase-app.js')})()});
