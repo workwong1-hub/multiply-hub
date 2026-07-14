@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Multiply Hub · 爱心砖墙</title>
+<style>
+  :root{--ink:#22213f;--muted:#77758e;--purple:#6e5ee8;--purple-soft:#ebe8ff;--bg:#f6f5ff}
+  *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% 10%,#ebe8ff 0,transparent 30%),var(--bg);font:16px Arial,"Microsoft YaHei",sans-serif;color:var(--ink)}
+  main{max-width:1440px;min-height:100vh;margin:auto;padding:42px clamp(22px,5vw,78px);display:flex;flex-direction:column;gap:26px}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:16px}.brand{font-size:14px;letter-spacing:1px;color:#77758e}.brand b{display:block;font-size:24px;letter-spacing:0;color:var(--ink);margin-top:5px}.fullscreen{border:1px solid #d8d3fb;background:#fff;color:#6255d4;border-radius:10px;padding:10px 13px;cursor:pointer;font:inherit}
+  .hero{background:#fff;border-radius:28px;padding:clamp(24px,4vw,52px);box-shadow:0 20px 55px #5149a713;display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:32px;align-items:center}.eyebrow{color:#7468de;font-weight:700;letter-spacing:1px;font-size:13px}.hero h1{font-size:clamp(32px,5vw,62px);margin:10px 0}.hero p{color:var(--muted);margin:0}.amount{font-weight:800;font-size:clamp(24px,3vw,42px);margin:28px 0 13px}.bar{height:14px;border-radius:99px;background:#ebe9fb;overflow:hidden}.bar>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7968ee,#a892fb);transition:width .5s}.percent{margin-top:10px;color:#6b61c7;font-weight:700}.hero-side{padding:25px;background:#f4f1ff;border-radius:22px;text-align:center}.hero-side b{display:block;font-size:36px;color:#695bd7;margin-top:8px}.hero-side span{font-size:13px;color:var(--muted)}
+  .wall-card{background:#fff;border-radius:28px;padding:clamp(20px,3vw,38px);box-shadow:0 20px 55px #5149a713;flex:1}.wall-title{display:flex;justify-content:space-between;align-items:end;margin-bottom:22px}.wall-title h2{margin:0;font-size:23px}.wall-title span{color:var(--muted);font-size:13px}
+  #wall{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px;transform:scaleY(-1);min-height:310px;align-content:end}.brick{min-height:92px;padding:12px;border-radius:7px;background:#eef0ff;border-bottom:4px solid #b8c2ff;box-shadow:0 4px 10px #505a8010;transform:scaleY(-1);display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden}.brick:nth-child(3n){background:#fff1e6;border-bottom-color:#ffc799}.brick:nth-child(4n){background:#f2edff;border-bottom-color:#cbbcff}.brick small{display:block;font-size:11px;color:#85829d;margin-bottom:8px}.brick-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.badge{display:inline-flex;align-self:flex-start;margin-top:8px;border-radius:999px;padding:2px 6px;border:1px solid #efbd58;background:#fff0c7;color:#875b00;font-size:10px;font-weight:800}.brick:nth-child(9n+1),.brick:nth-child(9n+2),.brick:nth-child(9n+3),.brick:nth-child(9n+4){grid-column:span 2}.brick:nth-child(9n+5),.brick:nth-child(9n+9){grid-column:span 1}.brick:nth-child(9n+6),.brick:nth-child(9n+7),.brick:nth-child(9n+8){grid-column:span 2}
+  .foot{color:#87839b;text-align:center;font-size:12px;padding-top:4px}@media(max-width:700px){main{padding:22px 16px}.hero{grid-template-columns:1fr}.hero-side{display:none}#wall{gap:6px;min-height:250px}.brick{min-height:72px;padding:8px;font-size:12px}.brick small{font-size:9px;margin-bottom:5px}.badge{font-size:8px;margin-top:5px;padding:2px 4px}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><div class="brand">by SMMCMYF<b>Multiply Hub</b></div><button class="fullscreen" onclick="toggleFullscreen()">全屏展示</button></div>
+  <section class="hero"><div><div class="eyebrow">一砖一瓦 · 爱心募款</div><h1>一起建造希望</h1><p>每一份支持，都会成为这面爱心砖墙的一部分。</p><div class="amount" id="amount">RM 0.00 / RM 60,000.00</div><div class="bar"><span id="bar"></span></div><div class="percent" id="percent">0.0% 已达成</div></div><div class="hero-side"><span>爱心砖</span><b id="brickCount">0</b><span>份爱心支持</span></div></section>
+  <section class="wall-card"><div class="wall-title"><div><h2>虚拟爱心砖墙</h2><span>最早的支持从底层开始，持续向上建造。</span></div><span id="updated">自动更新</span></div><div id="wall"></div></section>
+  <div class="foot">Multiply Hub · 爱心砖墙展示</div>
+</main>
+<script>
+const starter=[['爱心砖','Amelia Tan',400],['爱心砖','匿名支持者',100],['爱心砖','Marcus Lee',800],['爱心砖','Grace Tan',100],['爱心砖','Joshua Lim',100],['爱心砖','匿名支持者',100],['爱心砖','Nadia Wong',100],['爱心砖','青年小组',100],['爱心砖','Faith Group',100]];
+const rm=n=>'RM '+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key)||'null')||fallback}catch(e){return fallback}};
+function draw(){
+  const goal=Number(localStorage.getItem('campaignGoal')||60000),donations=read('fmsDonations',[]),orders=read('fmsOrders',[]);
+  const donationTotal=donations.reduce((s,x)=>s+Number(x[2]||0),0);
+  const posBricks=orders.flatMap(o=>(o.lines||[]).filter(x=>x.i&&x.i[1]==='砖块').flatMap(x=>Array.from({length:x.q||1},()=>({date:o.date,name:'POS 支持者',amount:Number(x.customPrice===undefined?x.i[2]:x.customPrice)||0,order:o.id||''}))));
+  const donationBricks=donations.filter(x=>x[4]==='brick').map((x,i)=>({date:x[0],name:x[1]||'匿名支持者',amount:Number(x[2]||0),order:'D'+i}));
+  const allBricks=[...starter.map((x,i)=>({date:'2026-07-0'+(i+1),name:x[1],amount:x[2],order:'S'+i})),...donationBricks,...posBricks].sort((a,b)=>String(a.date).localeCompare(String(b.date))||String(a.order).localeCompare(String(b.order)));
+  const brickSales=posBricks.reduce((s,x)=>s+x.amount,0),raised=donationTotal+brickSales,pct=Math.min(100,raised/goal*100);
+  document.getElementById('amount').textContent=rm(raised)+' / '+rm(goal);document.getElementById('bar').style.width=pct+'%';document.getElementById('percent').textContent=pct.toFixed(1)+'% 已达成';document.getElementById('brickCount').textContent=allBricks.length;
+  document.getElementById('wall').innerHTML=allBricks.map(x=>`<article class="brick"><small>爱心砖</small><span class="brick-name">${x.name}</span>${x.amount>=500?'<span class="badge">★ RM500+</span>':'<span class="badge" style="visibility:hidden">★</span>'}</article>`).join('');
+  document.getElementById('updated').textContent='更新于 '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+}
+function toggleFullscreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}
+window.addEventListener('storage',draw);setInterval(draw,10000);draw();
+</script>
+</body>
+</html>

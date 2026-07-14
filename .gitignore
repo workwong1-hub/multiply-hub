@@ -1,0 +1,7 @@
+# Local preview and editor files
+*.log
+.DS_Store
+Thumbs.db
+
+# Local historical backups
+*.bak*
